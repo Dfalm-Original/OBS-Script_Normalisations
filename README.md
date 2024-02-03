@@ -1,4 +1,9 @@
-#  ATTENTION
+# Divers Script OBS
+#Sauvegarde
+#Restauration
+#Migration
+
+#  !!!! ATTENTION !!!!
 
 #  Ces scripts s'executent dans un environnement "NORMALISÉ"
 
