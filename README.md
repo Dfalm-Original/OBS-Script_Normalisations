@@ -22,6 +22,8 @@ Ces scripts s'executent dans un environnement "NORMALISÉ"
 
 #### <span style="color:red"> Dans un premier temps ces scripts sont orientés "Microsoft Windows"</span>
 Par la suite ils seront adapté sous GNU/Linux
+Sous Linux toutes les options sont regroupées dans **.config/obs-studio**<br>
+C'est donc plus simple ... VOIR PLUS TARD !
 
 
 
@@ -37,11 +39,13 @@ RAPPEL : quelques variables WINDOWS
 - %PROGRAMFILES%	C:\Program Files
 - %PROGRAMFILES(X86)%	C:\Program Files (x86)
 
+!! PREFERER la variable générique **"%USERPROFILE%"** à *"%USERNAME%"* qui est spécifique !!
 
 ### RAPPEL OBS
 Sous Windows
-- Le logiciel OBS s'installe dans               C:\Program Files => variable d'environnement %PROGRAMFILES%
-- Les preférences utilisateur s'installent dans C:\Users\{username}\AppData\Roaming => variable d'environnement %APPDATA%
+- Le logiciel OBS s'installe dans               **C:\Program Files** => variable d'environnement *%PROGRAMFILES%*
+- Les preférences utilisateur s'installent dans **C:\Users\{username}\AppData\Roaming** => variable d'environnement *%APPDATA%*
+NB : !! D'anciennes version d'OBS-STUDIO peuvent se trouver dans l'ancien répertoire "32 bits" AKA	**C:\Program Files (x86)** => variable d'environnement %PROGRAMFILES(X86)% !!
 
 ### <---- PREAMBULE ---->
 Pour la normalisation le répertoire obs-studio "utilisateur" est déplacé (*ne s'applique pas pouur Linux*)<br>
