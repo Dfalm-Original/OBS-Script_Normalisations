@@ -1,0 +1,314 @@
+#### <span style="color:green">Script in French pending translations into English and other languages</span>
+
+ATTENTION
+
+Ces scripts s'executent dans un environnement "NORMALISÉ"
+
+- Préambule : explication prélimlinaires nécessaires
+- Strcutures
+- Notes
+- Vademecum de normalisation
+- Compression / décompression : vademecum 7z
+- Date : ajout de date dans le nom de l'archive
+
+!! Par la suite ils seront adapté sous GNU/Linux
+!! Sous Linux toutes les options sont regroupées dans **.config/obs-studio**<br>
+!! C'est donc plus simple ... VOIR PLUS TARD !
+
++ NOTA BENE : %username% est une variable d'environnement WINDOWS
++ Elle spécifie l'utilsateur courant
+↓ Dans le script on va utiliser ces variables d'environnement pour une exécution polyvalente
+↓
+++ RAPPEL : quelques variables WINDOWS
+%USERNAME%	{username}
+%HOMEPATH%	C:\Users\{username}
+%USERPROFILE%	C:\Users\{username}
+%APPDATA%	C:\Users\{username}\AppData\Roaming
+%PROGRAMFILES%	C:\Program Files
+%PROGRAMFILES(X86)%	C:\Program Files (x86)
+
+!! PREFERER la variable générique "%USERPROFILE%" à "%USERNAME%" qui est spécifique !!
+
+++ RAPPEL OBS
+Le logiciel OBS s'installe dans               	C:\Program Files => variable d'environnement %PROGRAMFILES%
+Les preférences utilisateur s'installent dans 	C:\Users\{username}\AppData\Roaming => variable d'environnement %APPDATA%
+NB : !! D'anciennes version d'OBS-STUDIO peuvent se trouver dans l'ancien répertoire "32 bits" AKA
+												C:\Program Files (x86) => variable d'environnement %PROGRAMFILES(X86)% !!
+
+
+<---- PREAMBULE ---->
+Pour la normalisation le répertoire obs-studio "utilisateur" est déplacé
+On crée un répertoire de 'Normalisation' dans le répertoire d'environement de l'utilisateur
+On lie le répertoire obs-studio au repertoire de normalisation utilisateur
+On crée un lien de 'Normalisation' système
+
+Lors de l'installation de OBS
+Le répertoire "environnement utilisateur" par défaut se situe dans “ C:\Users\%USERNAME%\AppData\Roaming\obs-studio ” => %APPDATA%
+
+Ce répertoire est déplacé dans “ C:\Users\%USERNAME%\Documents\OBS_KIT-PACK\obs-studio ”   <->   %USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio
+                                           ( ↓ voir ci-dessous la structure complète ↓ )
+
+Dans le principe on supprime le répertoire original obs-studio et on va le lier à un répertoire dans l'environnement utilisateur.
+
+Détails :
+Le répertoire original obs-studio est supprimé du répertoire ~~AppData\Roaming
+On crée un répertoire de normalisation dans le répertoire documents de l'utilisateur   ( %USERPROFILE% )
+On remplace le répertoire d'origine obs-studio par un lien symbolique dans l'environement utilisateur qu'on vient de créer
+                               ├───›› <JUNCTION>  obs-studio [c:\Users\%USERNAME%\Documents\OBS_KIT-PACK\obs-studio]
+                               └───›› <JUNCTION>  obs-studio    [%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio]    <-- PREFERER CETTE OPTION
+                               
+                               
+                               DEUX OPTIONS !!
+A) Le PC est vierge il n'y a pas OBS-STUDIO installé	: on va créer le profil
+B) Il y a déjà un OBS-STUDIO installé et paramétrer		: il faut donc migrer le profil
+
+COMMANDES : 
+::
+:: TRONC COMMUN AUX DEUX OPTIONS :
+:: On crée le répertoire dans le répertoire "documents" de l'utilisateur
+:: COMMANDE : >> mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio"
+::
+:: ---- OPTION A = environnement vierge
+:: On supprime le dossier original
+:: COMMANDE : >> rmdir %AppData%\obs-studio /S /Q
+::
+:: ---- OPTION B = environnent déjà préexistent
+:: On déplace le répertoire obs-studio et tous ses paramètres dans le nouvel environnement de normalisation
+:: COMMANDE : robocopy %AppData%\obs-studio %USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio /MIR  /MOVE
+::
+:: TRONC COMMUN AUX DEUX OPTIONS :
+:: On crée le lien de normalisation
+:: COMMANDE : >> mklink /j  %AppData%\obs-studio %USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio
+::
+:: Par le suite du script on va céer différents répertoires de normalisation ( voir plus bas )
+:: 
+:: On crée un réperoitre système de normalisation : VOIR PLUS BAS !!
+:: COMMANDE : >> mklink /j c:\OBS_Normalisation %USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio
+
+
+Le script de Sauvegarde va sauvegarder l'environement personnel et logiciel
+                                                        │             │
+                                                        │             └───›› C:\"ProgramFile%%~fi"\obs-studio
+IMPORTANT NOTE                                          └───›› %USERPROFILE% -- C:\Users\%USERNAME%\Documents\OBS_KIT-PACK\obs-studio
+DE VIELLES VERSIONS DE OBS s'installent dans "X86" : "C:\Program Files (x86)\obs-studio"   -- %PROGRAMFILES(X86)%\obs-studio
+LE REPERTOIRE D'USAGE EST : "C:\Program Files\obs-studio" -- %PROGRAMFILES%\obs-studio
+
+
+<---- Structure du dossier et sa "NORMALISATION" ---->
+%USERPROFILE%\Documents>
+└───OBS_KIT-PACK
+    ├───obs-studio
+    │   ├───basic
+    │   ├───crashes
+    │   ├───logs
+    │   ├───plugin_config
+    │   ├───profiler_data
+    │   ├───updates
+    │   │        ↑
+    │   │   ↑↑↑↑↑│
+    │   │        └────> RÉPERTOIRES propriétaires OBS - Contient les préférences : profils/scènes etc. au bon fonctionnement de OBS (*²)
+    │   ╞═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    │   │        ┌────> RÉPERTOIRES de Normalisation  - Contient les fichiers "médias"(*ª) et Extra-additionnels qui permettent de construire les scènes
+    │   │   ↓↓↓↓↓│                                                                      └─>(*ª) Audio-Vidéos, images, masques LUTs etc...
+    │   │        ↓
+    │   ├───_Extra-OBS			‹‹─── Contient tous les logiciels supplémentaires qui peuvent être utilisés avec OBS - peut être subdivisé en sous-répertoires ══ catégories
+    │   │   └───EXEMPLE			‹‹─── Exemple de logiciel additionnel
+    │   └───_MEDIAS
+    │       ├───AUDIOS          ‹‹─┐
+    │       ├───IMAGES          ‹‹─┴─┐  Chaque nom de répertoire est assez explicite pour ne pas être détailé
+    │       ├───MUSIQUES		‹‹─┬─┘  Chaque répertoire peut être subdivisé en sous-répertoires ══ catégories
+    │       ├───TEXTES			‹‹─┤
+    │       ├───VIDEOS			‹‹─┘
+    │       ├───_LUTs			‹‹─── Répertoire spécifique qui contient toutes les "LUT" pour les caméras/captures vidéos/webcams
+    │       ├───_MASQUES		‹‹─── Contient tous les fichiers "MASQUES" applicables pour masquer tout ou partie d'images - avec niveau de transparence
+    │       └───_MISC			‹‹─── Contient tous les autres types de fichiers non catégorisés et non prévus par cette normalisation
+    │
+    └───_SAUVEGARDES   <───  REPERTOIRE qui contient les sauvegardes "utilisateurs" : Le contenu de OBS_KIT-PACK\obs-studio (*²) et c:\"ProgramFile%%~fi"\obs-studio dans son intégralité
+	.
+	.
+	.. (*²) NOTA : les repertoires obs-studio\craches et obs-studio\logs ne sont pas sauvegardés ainsi que les *Cache* & *obs_profile_cookies* et bien sûr le répertoire !*_SAUVEGARDES*
+
+  NOTE : Afin de simplier l'usage un lien est crée à la racine et pointe vers la structure de Normalisation
+  ** C:\OBS_Normalisation --> Pointe vers "OBS_KIT-PACK"
+  !! PLUS DE DETAILS PLUS TARD
+  !! Résumé : cette option evite de manipuler les fichiers de scene.JSON et profiles.INI
+  !! Option longue fastidieuse et complexe à manipuler = K.I.S.S. on crée un lien à la racine de C: qui point vers le repertoire de normalisation !
+:: COMMANDE : >> mklink /j c:\OBS_Normalisation %USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio
+
+
+**********************************************************************************************************************
+****                                                                                                              ****
+****                                                                                                              ****
+**** IMPORTANT : la sauvegarde n'est pas récursive = elle ne contient pas le répértoire OBS_KIT-PACK\_SAUVEGARDES ****
+****                                                                                                              ****
+****                                                                                                              ****
+**********************************************************************************************************************
+
+
+<---- NOTES ---->
+Il y a différentes versions de scripts
+- Exécutables uniquement en mode administrateur
+- Autonomes avec élévations scriptée des privilèges pour s'auto-exécuter en mode administrateur
+
+
+<--- Vademecum ---->
+Je mets à disposition un vademecum pour créer les répertoires ad-hoc
+Créer l'environnement utilisateur et les liens symboliques nécessaires
+
+-----------------------------------------------
+
+ATTENTION !!!!    2 Options
+
+OPTION 1) Il y a déjà un OBS-STUDIO installé et paramétrer		: il faut donc migrer le profil
+OPTION 2) Le PC est vierge il n'y a pas OBS-STUDIO installé		: on va créer le profil
+
+
+:: ---- OPTION 1 = environnent déjà préexistent
+:: On déplace le répertoire obs-studio et tous ses paramètres dans le nouvel environnement de normalisation
+:: COMMANDE : robocopy %AppData%\obs-studio %USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio /MIR  /MOVE
+
+
+:: ---- OPTION 2 = environnement vierge
+:: On supprime inconditionnellement le répertoire par défaut
+:: COMMANDE : >> rmdir %AppData%\obs-studio /S /Q
+::
+:: TRONC COMMUN AUX DEUX OPTIONS :
+::
+:: Crée la strcuture normalisée
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\_SAUVEGARDES
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_Extra-OBS"
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_MEDIAS\_LUTs"
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_MEDIAS\_MASQUES"
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_MEDIAS\_MISC"
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_MEDIAS\AUDIOS"
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_MEDIAS\IMAGES"
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_MEDIAS\MUSIQUES"
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_MEDIAS\TEXTES"
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_MEDIAS\VIDEOS"
+
+::
+:: Crée deux liens symboliques
+:: I) Premier lien de %APPDATA% vers %USERPROFILE -- Tel que
+::              ~~AppData\Roaming\obs-studio <JUNCTION>   [c:\Users\%USERNAME%\Documents\OBS_KIT-PACK\obs-studio]
+:: > mklink /j  %AppData%\obs-studio %USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio
+:: II) Second lien pour la normalisation tel que
+:: > mklink /j c:\OBS_Normalisation %USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio
+::
+:: Spécifique à NGNIX pour créer un serveur RTMP
+:: !!!!!! ATTENTION ICI DANS L'EXEMPE : version 1.7.11.3
+:: !!!!!!
+:: !!!!!! ADAPTEZ A VOTRE VERSION AU BESOIN
+:: !!!!!!
+:: > mkdir "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_Extra-OBS\nginx\nginx 1.7.11.3 Gryphon\logs"
+:: > type nul >>"%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_Extra-OBS\nginx\nginx 1.7.11.3 Gryphon\logs\access.log"
+:: > type nul >>"%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_Extra-OBS\nginx\nginx 1.7.11.3 Gryphon\logs\error.log"
+:: > type nul >>"%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio\_Extra-OBS\nginx\nginx 1.7.11.3 Gryphon\logs\nginx.pid"
+::
+:: Spécifique à NGNIX pour créer un serveur RTMP
+::
+
+
+<---- 7Z compression/décompression --->
+
+--- 7z doit être préalabement installé
+
+Commandes types :
+
+-- COMPRESSION
+:: 7z a -t7z -mx=9
+Permet de compresser
+L'option “-t7z” spécifie le format 7z alogo LZMA2
+L'option “-mx=9” pour compression maximale
+      - archive au format “.7z”
+
+:: 7z a -sfx
+Permet de créer une archive self extractible en mode "DOS"
+    - l'archive s'auto-extrait inconditionnellement dans le répertoire courant
+	  - archive au format “.exe”
+
+:: 7z a -sfx7z.sfx
+Permet de créer une archive self extractible en mode "WINDOWS" : Une fenêtre de dialogue s'ouvre et propose un répertoire pour extraction
+    - répertoire courant par défaut - peut-être modifié par l'utilisateur
+	  - archive au format “.exe”
+
+:: -xr!*VARIABLE*
+L'option “-xr” suivi d'une variable avec ou sans joker “*” permet d'exclure des fichiers et répertoires
+     - dans le scripts sont exclus de la sauvegarde : *logs* *Cache* *crashes* & *obs_profile_cookies* et  le répertoire *_SAUVEGARDES*
+
+
+-- EXTRACTION
+:: 7z x NOM-DE-LARCHIVE.7z
+Extraction par défaut dans le répertoire courant
+
+:: 7z x NOM-DE-LARCHIVE.7z -o"DISQUE:\chemin\dextraction"
+L'option “-o” suivi "entreguillement"
+Permet d'extraire vers un disque et un chemin spécifique
+     - Fonctionne aussi avec les archives auto-extractibles" en “.exe”
+	   \ Remplacer “NOM-DE-LARCHIVE.7z” par “NOM-DE-LARCHIVE.exe”
+
+:: 7z x NOM-DE-LARCHIVE.7z -aoa -o"DISQUE:\chemin\dextraction"
+L'option “-aoa” permet d'extraire inconditionnellement l'archive
+     - remplace les fichiers existants sans confirmation
+     - Fonctionne aussi avec les archives auto-extractibles" en “.exe”
+	   \ Remplacer “NOM-DE-LARCHIVE.7z” par “NOM-DE-LARCHIVE.exe”
+
+
+********** IMPORTANT **************************************************************************
+***
+***
+*** Compression du répertoire "utilisateur"
+Toujours faire la compression vers le lien du répertoire d'origine d'OBS Studio
+<<OK>> "%APPDATA%\obs-studio"
+::
+!! IL FAUT PREFERER UTILISER  >> "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio"  !!
+::
+:: EXEMPLE ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬────────────────┐
+::                                                                                                                                       ↓                ↓
+::  NON !! 7z a -t7z -mx=9 C:\Users\%USERNAME%\Documents\OBS_KIT-PACK\_SAUVEGARDES\BACKUP_OBS_KIT-PACK-{masauvegarde}.7z "C:\Users\%username%\AppData\Roaming\obs-studio" -xr!*logs* -xr!*Cache* -xr!*crashes* -xr!*obs_profile_cookies* -xr!*_SAUVEGARDES*
+::  OUI !! 7z a -t7z -mx=9       "%USERPROFILE%\Documents\OBS_KIT-PACK\_SAUVEGARDES\BACKUP_OBS_KIT-PACK-{masauvegarde}.7z"                  "%APPDATA%\obs-studio" -xr!*logs* -xr!*Cache* -xr!*crashes* -xr!*obs_profile_cookies* -xr!*_SAUVEGARDES*
+
+*** IDEM La décompression
+La décompression s'effectue toujours vers lien du répertoire d'origine d'OBS Studio
+<<OK>> "%APPDATA%\obs-studio"
+::
+!! IL FAUT PREFERER UTILISER  >> "%USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio"  !!
+::
+:: EXEMPLE ─────────────────────────────────────────────────────────────────────┬───────┐
+::                                                                              ↓       ↓
+:: !! NON >> 7z x ~~OBS_BACKUP_KIT-PACK-{masauvegarde}.7z -aoa -o"C:\Users\%username%\AppData\Roaming"
+:: !! OUI >> 7z x "%USERPROFILE%\Documents\OBS_KIT-PACK\_SAUVEGARDES\BACKUP_OBS_KIT-PACK-{masauvegarde}.7z" -aoa -o"%APPDATA%"
+***
+*** RAPPEL voir plus haut !!
+*** C:\Users\%username%\AppData\Roaming\obs-studio est un lien sympbolique qui pointe vers %USERPROFILE%\Documents\OBS_KIT-PACK\obs-studio
+***
+**********************************************************************************************
+
+
+<---- DATE --->
+Le script ajoute la date au nom de l'archive + le nom courant de l'utilisateur
+
+Pour la date 2 méthodes
+a) Ecrire directement la date dans le nom complet du fichier
+b) Créer une variable
+
+
+a) Méthode directe :
+:: EXEMPLE ─────────────────────────────────────────────────────────────┬───────────┬───────────┐
+::                                                                      ↓           ↓           ↓
+:: 7z a -t7z -mx=9 DISQUE:\Chemin\delarchvie\Nomdelarchive-%USERNAME%-%date:~6,4%-%date:~3,2%-%date:~0,2%.7z "DISQUE:\repertoire\accompresser"
+::
+:: %username% = spécifie l'utilisateur courant et l'ajoute au nom de l'archive
+:: %date:~6,4%-%date:~3,2%-%date:~0,2% = spécifie l'année - le mois - le jour _ et conclu par “.7z”
+Le format de la date est YYYY-MM-DD - EG ; “Nomdelarchive-ExempliGratia-2042-49-3.7z” : le 49 Avroût de l'an Deux mil quarante deux
+
+
+b) Méthode par variable
+:: EXEMPLE
+:: set madate=%date:~6,4%-%date:~3,2%-%date:~0,2%
+:: EXEMPLE ─────────────────────────────────────────────────────────────┐
+::                                                                      ↓
+:: 7z a -t7z -mx=9 DISQUE:\Chemin\delarchvie\Nomdelarchive-%USERNAME%-%madate%.7z "DISQUE:\repertoire\accompresser"
+On crée la varible “madate” au format ci-dessus
+:: %date:~6,4%-%date:~3,2%-%date:~0,2% = spécifie l'année - le mois - le jour
+:: on ajoute la variable “%madate%”  _ et conclu par “.7z”
+Le format de la date est YYYY-MM-DD - EG ; “Nomdelarchive-ExempliGratia-2042-37-4.7z”  : le 37 Juillembre de l'an Deux mil vingt-douze plus trois fois dix
