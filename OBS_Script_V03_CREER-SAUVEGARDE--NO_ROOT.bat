@@ -24,16 +24,11 @@
 ::     LE SCRIPT PROPOSE LE CHOIX DE LA SAUVEGARDE
 ::              DANS LE REPERTOIRE NORMALISÉ ( par défaut )
 ::              OU LOCALE ( Pour une clef USB par exemple )
-
 ::
 ::                     ATTENTION
 ::
-::     CE SCRIPT NE FONCTIONNE PAS EN RESEAU
-::
-::     IL FAUT EXECUTER EN "LOCAL"  Clef-USB ou Répertoire ad hoc
 ::
 ::
-
 ::
 :: ---------  ELEVATION DES PRIVILEGES : ON PASSE EN MODE ADMIN POUR POUVOIR LIRE DANS --programfiles--
 ::
