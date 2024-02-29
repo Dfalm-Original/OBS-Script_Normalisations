@@ -1,4 +1,4 @@
-#### <span style="color:green">Script in French pending translations into English and other languages</span>
+<span style="color:green">Script in French pending translations into English and other languages</span>
 
 ATTENTION
 
